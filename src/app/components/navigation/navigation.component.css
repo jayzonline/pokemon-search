@@ -1,0 +1,6 @@
+.nav-link {
+  @apply text-sm text-gray-700 hover:text-blue-600 whitespace-nowrap hover:cursor-pointer
+}
+.active-link {
+  @apply text-blue-600 whitespace-nowrap hover:cursor-pointer
+}

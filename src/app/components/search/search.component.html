@@ -1,0 +1,40 @@
+<div class="min-h-screen flex flex-col items-center justify-start pt-40 px-4 bg-gray-50">
+  <h2 class="text-4xl font-semibold text-gray-800 mb-10 hover:cursor-default">PokéSearch</h2>
+
+  <!-- Search Box -->
+  <div class="w-full max-w-xl relative" (keydown)="handleKeyDown($event)">
+    <form (ngSubmit)="onSearch(searchControl.value)"
+      class="flex items-center border border-gray-300 rounded-full shadow-sm px-4 py-2 bg-white">
+      <input autocomplete="off" type="text" [formControl]="searchControl" name="search"
+        placeholder="Search for Pokémon..." (blur)="onBlur()" (focus)="onFocus()" aria-controls="suggestion-list"
+        aria-autocomplete="list"
+        class="flex-grow bg-transparent outline-none text-gray-700 text-lg placeholder-gray-400" />
+      <button type="submit" class="ml-2 text-blue-600 hover:text-blue-800 font-medium">Search</button>
+    </form>
+
+    <!-- Autosuggest Dropdown -->
+    <ul *ngIf="suggestions.length > 0" id="suggestion-list" role="listbox"
+      class="absolute left-0 right-0 bg-white border border-gray-300 mt-2 rounded-xl shadow-lg overflow-hidden z-10 max-h-80 overflow-y-hidden">
+      <li *ngFor="let suggestion of suggestions; let i = index" role="option" [attr.aria-selected]="i === activeIndex"
+        [ngClass]="{
+      'bg-blue-50 text-blue-700': i === activeIndex,
+      'hover:bg-gray-100': i !== activeIndex
+    }" (mousedown)="onSuggestionClick(suggestion.name)"
+        class="flex items-center px-4 py-2 text-sm transition-colors duration-150 cursor-pointer border-b last:border-b-0 border-gray-100">
+        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <span class="truncate">{{ suggestion.name }}</span>
+      </li>
+    </ul>
+    <!-- Loading Feedback -->
+    <div *ngIf="isLoading" class="mt-2 text-sm text-gray-500">Searching...</div>
+  </div>
+
+  <!-- Optional links below search -->
+  <!-- <div class="mt-5 text-sm text-gray-600 space-x-4">
+    <a routerLink="/" class="hover:text-blue-600">Advanced Search</a>
+    <a routerLink="/" class="hover:text-blue-600">Random Pokémon</a>
+  </div> --> 
+</div>

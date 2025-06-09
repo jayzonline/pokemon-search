@@ -1,0 +1,20 @@
+<nav class="sticky top-0 z-50 bg-white flex items-center justify-between w-full px-4 py-2 border-b" #navContainer>
+
+  <a routerLink="/" class="text-xl font-semibold text-gray-800 hover:cursor-pointer">
+    <span>Pokemon Explorer</span>
+  </a>
+
+  <div class="flex items-center space-x-4">
+    <ng-container *ngFor="let item of visibleItems">
+      <a [routerLink]="getRoutePath(item)" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-link"> {{ item }}</a>
+    </ng-container>
+
+    <select *ngIf="overflowItems.length"
+      class="text-sm text-gray-700 border rounded px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+      (change)="selectLink($event)">
+      <option disabled selected>More...</option>
+      <option *ngFor="let item of overflowItems" [value]="item">{{ item }}</option>
+    </select>
+  </div>
+</nav>
