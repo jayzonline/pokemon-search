@@ -16,9 +16,14 @@ export class SearchComponent implements OnInit {
   isFocused = false;
   isLoading = false;
 
-  constructor(private pokemonService: PokemonService, private router: Router) {}
+  constructor(private pokemonService: PokemonService, private router: Router) { }
 
   ngOnInit(): void {
+    const cachedQuery = sessionStorage.getItem('searchQuery');
+    if (cachedQuery) {
+      this.searchControl.setValue(cachedQuery);
+    }
+
     this.searchControl.valueChanges
       .pipe(
         debounceTime(200),
@@ -49,12 +54,28 @@ export class SearchComponent implements OnInit {
       });
   }
 
+  // onSearch(query: string | null): void {
+  //   if (!query || !query.trim()) return;
+  //   sessionStorage.setItem('searchQuery', query);
+  //   this.router.navigate(['/results'], { queryParams: { pokemon: query.toLowerCase() } });
+  //   this.suggestions = [];
+  //   this.activeIndex = -1;
+  // }
+
   onSearch(query: string | null): void {
-    if (!query || !query.trim()) return;
-    this.router.navigate(['/results'], { queryParams: { pokemon: query.toLowerCase() } });
-    this.suggestions = [];
-    this.activeIndex = -1;
-  }
+  if (!query || !query.trim()) return;
+
+  const formatted = query.trim().toLowerCase();
+  sessionStorage.setItem('searchQuery', formatted);
+
+  // Ensure route actually changes to /results
+  this.router.navigate(['/results'], {
+    queryParams: { pokemon: formatted }
+  });
+
+  this.suggestions = [];
+  this.activeIndex = -1;
+}
 
   onSuggestionClick(name: string): void {
     this.onSearch(name);

@@ -3,14 +3,24 @@
 
   <!-- Search Box -->
   <div class="w-full max-w-xl relative" (keydown)="handleKeyDown($event)">
-    <form (ngSubmit)="onSearch(searchControl.value)"
-      class="flex items-center border border-gray-300 rounded-full shadow-sm px-4 py-2 bg-white">
-      <input autocomplete="off" type="text" [formControl]="searchControl" name="search"
-        placeholder="Search for Pokémon..." (blur)="onBlur()" (focus)="onFocus()" aria-controls="suggestion-list"
-        aria-autocomplete="list"
-        class="flex-grow bg-transparent outline-none text-gray-700 text-lg placeholder-gray-400" />
-      <button type="submit" class="ml-2 text-blue-600 hover:text-blue-800 font-medium">Search</button>
-    </form>
+    <div class="flex items-center border border-gray-300 rounded-full shadow-sm px-4 py-2 bg-white">
+  <input
+    autocomplete="off"
+    type="text"
+    [formControl]="searchControl"
+    placeholder="Search for Pokémon..."
+    (blur)="onBlur()"
+    (focus)="onFocus()"
+    aria-controls="suggestion-list"
+    aria-autocomplete="list"
+    class="flex-grow bg-transparent outline-none text-gray-700 text-lg placeholder-gray-400"
+  />
+  <button type="button"
+    (click)="onSearch(searchControl.value)"
+    class="ml-2 text-blue-600 hover:text-blue-800 font-medium">
+    Search
+  </button>
+</div>
 
     <!-- Autosuggest Dropdown -->
     <ul *ngIf="suggestions.length > 0" id="suggestion-list" role="listbox"

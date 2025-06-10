@@ -77,12 +77,27 @@ export class NavigationComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  navigateTo(item: string): void {
-    const path = this.getRoutePath(item);
-    if (path) {
-      this.router.navigate([path]);
+ navigateTo(item: string): void {
+  const path = this.getRoutePath(item);
+
+  if (item.toLowerCase() === 'results') {
+    const cached = sessionStorage.getItem('resultsState');
+    debugger
+    if (cached) {
+      const state = JSON.parse(cached);
+      if (state?.pokemonName) {
+        this.router.navigate(['/results'], {
+          queryParams: { pokemon: state.pokemonName }
+        });
+        return;
+      }
     }
   }
+
+  if (path) {
+    this.router.navigate([path]);
+  }
+}
 
   getRoutePath(item: string): string | null {
     const routes: Record<string, string> = {
