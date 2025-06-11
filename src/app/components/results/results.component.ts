@@ -13,7 +13,7 @@ export class ResultsComponent implements OnInit {
   allEncounters: Encounter[] = [];
   paginatedEncounters: Encounter[] = [];
   currentPage: number = 1;
-  pageSize: number = 10;
+  pageSize: number = 5;
   searchInitiated: boolean = false;
 
   constructor(

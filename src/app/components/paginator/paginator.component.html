@@ -1,4 +1,4 @@
-<div class="flex justify-center mt-6 space-x-2" *ngIf="totalPages > 1">
+<div class="flex justify-center mt-6 mb-6 space-x-2" *ngIf="totalPages > 1">
   <button
     (click)="goToPage(currentPage - 1)"
     [disabled]="currentPage === 1"

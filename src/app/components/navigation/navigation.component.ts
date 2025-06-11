@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router } from '@angular/router';
 import { fromEvent, Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 
@@ -8,6 +8,7 @@ import { debounceTime, takeUntil } from 'rxjs/operators';
   templateUrl: './navigation.component.html',
   styleUrls: ['./navigation.component.css']
 })
+
 export class NavigationComponent implements AfterViewInit, OnDestroy {
   private readonly allItems: string[] = ['Home', 'Results', 'Pokédex', 'Types', 'Abilities', 'Moves', 'Favorites', 'Login'];
   visibleItems: string[] = [];
@@ -57,18 +58,22 @@ export class NavigationComponent implements AfterViewInit, OnDestroy {
   }
 
   private measureTextWidth(text: string, className: string, container: HTMLElement): number {
-    const temp = document.createElement('span');
-    Object.assign(temp.style, {
+    const span = document.createElement('span');
+    span.textContent = text;
+    span.className = className;
+
+    Object.assign(span.style, {
       visibility: 'hidden',
       position: 'absolute'
     });
-    temp.className = className;
-    temp.textContent = text;
-    container.appendChild(temp);
-    const width = temp.offsetWidth;
-    container.removeChild(temp);
+
+    container.appendChild(span);
+    const width = span.offsetWidth;
+    container.removeChild(span);
+
     return width;
   }
+
 
   selectLink({ target }: Event): void {
     const value = (target as HTMLSelectElement).value;
@@ -77,34 +82,56 @@ export class NavigationComponent implements AfterViewInit, OnDestroy {
     }
   }
 
- navigateTo(item: string): void {
-  const path = this.getRoutePath(item);
+  navigateTo(item: string): void {
+    const key = item.toLowerCase();
 
-  if (item.toLowerCase() === 'results') {
-    const cached = sessionStorage.getItem('resultsState');
-    debugger
-    if (cached) {
-      const state = JSON.parse(cached);
-      if (state?.pokemonName) {
-        this.router.navigate(['/results'], {
-          queryParams: { pokemon: state.pokemonName }
-        });
-        return;
+    if (key === 'results') {
+      const cached = sessionStorage.getItem('resultsState');
+      if (cached) {
+        const state = JSON.parse(cached);
+        if (state?.pokemonName) {
+          this.router.navigate(['/results'], {
+            queryParams: { pokemon: state.pokemonName }
+          });
+          return;
+        }
       }
+    }
+    const path = this.getRoutePath(key);
+    if (path) {
+      this.router.navigate([path]);
     }
   }
 
-  if (path) {
-    this.router.navigate([path]);
-  }
-}
-
-  getRoutePath(item: string): string | null {
+  private getRoutePath(item: string): string | null {
     const routes: Record<string, string> = {
       home: '/',
       results: '/results'
     };
-    return routes[item.toLowerCase()] ?? null;
+    return routes[item] ?? null;
+  }
+
+
+  // Reuse isActive logic to determine active option
+  isActive(item: string): boolean {
+    const key = item.toLowerCase();
+    const currentUrl = this.router.url;
+
+    if (key === 'results') {
+      return currentUrl.startsWith('/results');
+    }
+
+    const path = this.getRoutePath(key);
+    return path ? currentUrl === path : false;
+  }
+
+  getActiveItem(items: string[]): string | null {
+    for (const item of items) {
+      if (this.isActive(item)) {
+        return item;
+      }
+    }
+    return null;
   }
 
   ngOnDestroy(): void {

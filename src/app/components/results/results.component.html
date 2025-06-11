@@ -1,7 +1,9 @@
 <div class="min-h-screen flex flex-col items-center justify-start pt-40 px-4 bg-gray-50">
-  <h2 class="text-4xl font-semibold text-gray-800 mb-10 hover:cursor-default">
+<div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+  <h2 class="text-4xl font-semibold text-gray-800 mb-0 hover:cursor-default">
     Encounters for {{ pokemonName ? (pokemonName | titlecase) : '...' }}
   </h2>
+</div>
 
   <div class="w-full max-w-3xl">
     <ng-container *ngIf="searchInitiated; else promptSearch">
@@ -23,11 +25,10 @@
     </ng-template>
 
     <!-- Paginator Component -->
-    <app-paginator
-      *ngIf="searchInitiated && allEncounters.length > 0"
+    <app-paginator *ngIf="searchInitiated && allEncounters.length > 0" 
       [totalItems]="allEncounters.length"
-      [currentPage]="currentPage"
-      [pageSize]="pageSize"
+      [currentPage]="currentPage" 
+      [pageSize]="pageSize" 
       (pageChanged)="onPageChange($event)">
     </app-paginator>
   </div>

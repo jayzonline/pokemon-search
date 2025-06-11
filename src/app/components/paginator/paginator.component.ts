@@ -17,7 +17,6 @@ export class PaginatorComponent {
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
-      console.log(`Navigating to page ${page}`);
       this.pageChanged.emit(page);
     }
   }
