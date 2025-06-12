@@ -1,35 +1,43 @@
 <div class="min-h-screen flex flex-col items-center justify-start pt-40 px-4 bg-gray-50">
-<div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
-  <h2 class="text-4xl font-semibold text-gray-800 mb-0 hover:cursor-default">
-    Encounters for {{ pokemonName ? (pokemonName | titlecase) : '...' }}
-  </h2>
-</div>
+  <div class="bg-gray-50 rounded-lg p-6 pb-0 pt-0 mb-10">
+    <h2 class="text-4xl font-semibold text-gray-800 mb-0 hover:cursor-default">
+      Encounters for {{ pokemonName ? (pokemonName | titlecase) : '...' }}
+    </h2>
+  </div>
 
   <div class="w-full max-w-3xl">
     <ng-container *ngIf="searchInitiated; else promptSearch">
-      <div *ngIf="paginatedEncounters.length > 0; else noResults" class="bg-white shadow-md rounded-lg overflow-hidden">
-        <ul class="divide-y divide-gray-200">
-          <li *ngFor="let location of paginatedEncounters" class="px-6 py-4 text-gray-800 hover:bg-gray-50">
-            <div class="text-md font-medium">{{ location.location_area.name | titlecase }}</div>
+      <div *ngIf="isLoading" class="text-center text-blue-500 text-lg py-6">Loading encounter data...</div>
+
+      <div *ngIf="!isLoading && paginatedEncounters.length > 0" class="bg-white shadow-md rounded-lg overflow-hidden">
+        <ul class="divide-y divide-gray-200" role="list">
+          <li *ngFor="let location of paginatedEncounters" role="listitem"
+            class="px-6 py-4 sm:py-5 text-gray-800 hover:bg-gray-50 transition">
+            <div class="text-md font-medium">{{ formatLocation(location.location_area.name) }}</div>
           </li>
         </ul>
       </div>
 
       <ng-template #noResults>
-        <div class="text-center text-gray-500 text-lg">No encounter data found for this Pokémon.</div>
+        <div class="bg-white text-gray-500 text-lg p-6 rounded-lg shadow-md text-center">
+          No encounter data found for this Pokémon.
+        </div>
       </ng-template>
+
+      <div *ngIf="!isLoading && paginatedEncounters.length === 0">
+        <ng-container *ngTemplateOutlet="noResults"></ng-container>
+      </div>
     </ng-container>
 
     <ng-template #promptSearch>
-      <div class="text-center text-gray-500 text-lg">Please search for a Pokémon to view encounter data.</div>
+      <div class="bg-white text-gray-500 text-lg p-6 rounded-lg shadow-md text-center">
+        Please search for a Pokémon to view encounter data.
+      </div>
     </ng-template>
 
     <!-- Paginator Component -->
-    <app-paginator *ngIf="searchInitiated && allEncounters.length > 0" 
-      [totalItems]="allEncounters.length"
-      [currentPage]="currentPage" 
-      [pageSize]="pageSize" 
-      (pageChanged)="onPageChange($event)">
+    <app-paginator *ngIf="searchInitiated && allEncounters.length > 0 && !isLoading" [totalItems]="allEncounters.length"
+      [currentPage]="currentPage" [pageSize]="pageSize" (pageChanged)="onPageChange($event)">
     </app-paginator>
   </div>
 </div>

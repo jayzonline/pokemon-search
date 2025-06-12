@@ -1,6 +1,16 @@
 {
-  "name": "pokemon-search",
-  "version": "0.0.0",
+  "name": "pokemon-explorer",
+  "description": "A simple Angular application to explore Pokémon data using the PokeAPI.",
+  "author": "Jayagovind",
+  "license": "MIT",
+  "keywords": [
+    "angular",
+    "pokemon",
+    "pokemon search",
+    "pokeapi",
+    "web application"
+  ],   
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

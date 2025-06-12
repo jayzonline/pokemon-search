@@ -10,3 +10,10 @@ export interface Pokemon {
   name: string;
   url: string;
 }
+
+
+export interface NavItem {
+  label: string;
+  route?: string;
+  exact?: boolean;
+}

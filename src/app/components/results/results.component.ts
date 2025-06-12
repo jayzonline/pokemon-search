@@ -15,12 +15,13 @@ export class ResultsComponent implements OnInit {
   currentPage: number = 1;
   pageSize: number = 5;
   searchInitiated: boolean = false;
+  isLoading: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private pokemonService: PokemonService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const cachedState = sessionStorage.getItem('resultsState');
@@ -51,17 +52,20 @@ export class ResultsComponent implements OnInit {
   }
 
   fetchEncounters(name: string): void {
+    this.isLoading = true;
+
     this.pokemonService.getEncounters(name).subscribe({
       next: (data: Encounter[]) => {
         this.allEncounters = data || [];
         this.currentPage = 1;
+        this.isLoading = false;
         this.saveState();
         this.updatePagination();
       },
       error: () => {
         this.allEncounters = [];
         this.currentPage = 1;
-        this.saveState();
+        this.isLoading = false;
         this.updatePagination();
       }
     });
@@ -92,5 +96,9 @@ export class ResultsComponent implements OnInit {
       currentPage: this.currentPage
     };
     sessionStorage.setItem('resultsState', JSON.stringify(state));
+  }
+
+  formatLocation(name: string): string {
+    return name.replace(/[-_]/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   }
 }

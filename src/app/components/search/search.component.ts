@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, tap, of } from 'rxjs';
 import { PokemonService } from 'src/app/services/pokemon.service';
 
 @Component({
@@ -15,6 +15,10 @@ export class SearchComponent implements OnInit {
   activeIndex: number = -1;
   isFocused = false;
   isLoading = false;
+  noResults = false;
+  cache = new Map<string, { name: string }[]>();
+
+  @ViewChild('searchInput') searchInput!: ElementRef;
 
   constructor(private pokemonService: PokemonService, private router: Router) { }
 
@@ -27,55 +31,68 @@ export class SearchComponent implements OnInit {
     this.searchControl.valueChanges
       .pipe(
         debounceTime(200),
-        distinctUntilChanged(),
+        distinctUntilChanged((prev, curr) =>
+          prev?.trim().toLowerCase() === curr?.trim().toLowerCase()
+        ),
         tap(() => {
           this.isLoading = true;
           this.suggestions = [];
+          this.noResults = false;
         }),
-        switchMap(query =>
-          this.pokemonService.getAllPokemon(query).pipe(
-            tap(() => (this.isLoading = false)),
+        switchMap(query => {
+          const trimmedQuery = query?.trim().toLowerCase() ?? '';
+          if (trimmedQuery.length < 2) {
+            this.isLoading = false;
+            return of([]);
+          }
+
+          if (this.cache.has(trimmedQuery)) {
+            const cachedResults = this.cache.get(trimmedQuery)!;
+            this.suggestions = cachedResults.slice(0, 10);
+            this.noResults = this.suggestions.length === 0;
+            this.activeIndex = -1;
+            this.isLoading = false;
+            return of([]);
+          }
+
+          return this.pokemonService.getAllPokemon(trimmedQuery).pipe(
             tap(pokemonList => {
               const all = pokemonList?.results || [];
               const filtered = all.filter((p: any) =>
-                p.name.toLowerCase().includes((query ?? '').toLowerCase())
+                p.name.toLowerCase().includes(trimmedQuery)
               );
-              this.suggestions = filtered.slice(0, 9);
+              this.cache.set(trimmedQuery, filtered);
+              this.suggestions = filtered.slice(0, 10);
+              this.noResults = this.suggestions.length === 0;
               this.activeIndex = -1;
+              this.isLoading = false;
             })
-          )
-        )
+          );
+        })
       )
       .subscribe({
         error: () => {
           this.suggestions = [];
+          this.noResults = true;
           this.isLoading = false;
         }
       });
   }
 
-  // onSearch(query: string | null): void {
-  //   if (!query || !query.trim()) return;
-  //   sessionStorage.setItem('searchQuery', query);
-  //   this.router.navigate(['/results'], { queryParams: { pokemon: query.toLowerCase() } });
-  //   this.suggestions = [];
-  //   this.activeIndex = -1;
-  // }
-
   onSearch(query: string | null): void {
-  if (!query || !query.trim()) return;
+    if (!query || !query.trim()) return;
 
-  const formatted = query.trim().toLowerCase();
-  sessionStorage.setItem('searchQuery', formatted);
+    const formatted = query.trim().toLowerCase();
+    this.searchControl.setValue(formatted, { emitEvent: false });
+    sessionStorage.setItem('searchQuery', formatted);
 
-  // Ensure route actually changes to /results
-  this.router.navigate(['/results'], {
-    queryParams: { pokemon: formatted }
-  });
+    this.router.navigate(['/results'], {
+      queryParams: { pokemon: formatted }
+    });
 
-  this.suggestions = [];
-  this.activeIndex = -1;
-}
+    this.suggestions = [];
+    this.activeIndex = -1;
+  }
 
   onSuggestionClick(name: string): void {
     this.onSearch(name);
@@ -100,6 +117,15 @@ export class SearchComponent implements OnInit {
     } else if (event.key === 'Escape') {
       this.suggestions = [];
       this.activeIndex = -1;
+      this.searchInput?.nativeElement.blur();
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: MouseEvent) {
+    if (!this.searchInput?.nativeElement.contains(event.target)) {
+      this.suggestions = [];
+      this.activeIndex = -1;
     }
   }
 
@@ -111,5 +137,9 @@ export class SearchComponent implements OnInit {
   onFocus(): void {
     this.isFocused = true;
   }
-}
 
+  highlightMatch(name: string): string {
+    const query = this.searchControl.value?.toLowerCase() ?? '';
+    return name.replace(new RegExp(`(${query})`, 'i'), '<strong>$1</strong>');
+  }
+}

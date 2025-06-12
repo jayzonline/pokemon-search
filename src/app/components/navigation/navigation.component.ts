@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, ViewChild, OnDestroy } from '@ang
 import { Router } from '@angular/router';
 import { fromEvent, Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
+import { NavItem } from 'src/app/models/pokemon.model';
 
 @Component({
   selector: 'app-navigation',
@@ -10,9 +11,18 @@ import { debounceTime, takeUntil } from 'rxjs/operators';
 })
 
 export class NavigationComponent implements AfterViewInit, OnDestroy {
-  private readonly allItems: string[] = ['Home', 'Results', 'Pokédex', 'Types', 'Abilities', 'Moves', 'Favorites', 'Login'];
-  visibleItems: string[] = [];
-  overflowItems: string[] = [];
+  private readonly allItems: NavItem[] = [
+    { label: 'Home', route: '/' },
+    { label: 'Results', route: '/results' },
+    { label: 'Pokédex' },
+    { label: 'Types' },
+    { label: 'Abilities' },
+    { label: 'Moves' },
+    { label: 'Favorites' },
+    { label: 'Login' }
+  ];
+  visibleItems: NavItem[] = [];
+  overflowItems: NavItem[] = [];
 
   @ViewChild('navContainer', { static: false }) private navContainer!: ElementRef<HTMLElement>;
 
@@ -45,7 +55,7 @@ export class NavigationComponent implements AfterViewInit, OnDestroy {
     this.visibleItems = [];
 
     for (const item of this.allItems) {
-      const width = this.measureTextWidth(item, 'nav-item-temp', container);
+      const width = this.measureTextWidth(item.label, 'nav-item-temp', container);
       if (usedWidth + width + buffer < containerWidth) {
         this.visibleItems.push(item);
         usedWidth += width;
@@ -78,13 +88,15 @@ export class NavigationComponent implements AfterViewInit, OnDestroy {
   selectLink({ target }: Event): void {
     const value = (target as HTMLSelectElement).value;
     if (value) {
-      this.navigateTo(value);
+      const navItem = this.allItems.find(item => item.label === value);
+      if (navItem) {
+        this.navigateTo(navItem);
+      }
     }
   }
 
-  navigateTo(item: string): void {
-    const key = item.toLowerCase();
-
+  navigateTo(item: NavItem): void {
+    const key = item.label.toLowerCase();
     if (key === 'results') {
       const cached = sessionStorage.getItem('resultsState');
       if (cached) {
@@ -97,41 +109,26 @@ export class NavigationComponent implements AfterViewInit, OnDestroy {
         }
       }
     }
-    const path = this.getRoutePath(key);
-    if (path) {
-      this.router.navigate([path]);
+
+    if (item.route) {
+      this.router.navigate([item.route]);
     }
   }
 
-  private getRoutePath(item: string): string | null {
-    const routes: Record<string, string> = {
-      home: '/',
-      results: '/results'
-    };
-    return routes[item] ?? null;
-  }
+  isActive(item: NavItem): boolean {
+    if (!item.route) return false;
 
-
-  // Reuse isActive logic to determine active option
-  isActive(item: string): boolean {
-    const key = item.toLowerCase();
     const currentUrl = this.router.url;
-
-    if (key === 'results') {
+    if (item.route === '/results') {
       return currentUrl.startsWith('/results');
     }
 
-    const path = this.getRoutePath(key);
-    return path ? currentUrl === path : false;
+    return currentUrl === item.route;
   }
 
-  getActiveItem(items: string[]): string | null {
-    for (const item of items) {
-      if (this.isActive(item)) {
-        return item;
-      }
-    }
-    return null;
+
+  getActiveItem(items: NavItem[]): NavItem | null {
+    return items.find(item => this.isActive(item)) || null;
   }
 
   ngOnDestroy(): void {

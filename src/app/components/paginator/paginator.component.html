@@ -1,18 +1,21 @@
-<div class="flex justify-center mt-6 mb-6 space-x-2" *ngIf="totalPages > 1">
-  <button
-    (click)="goToPage(currentPage - 1)"
-    [disabled]="currentPage === 1"
+<div class="flex justify-center mt-10 mb-4 space-x-2" *ngIf="totalPages > 1">
+  <!-- Previous Button -->
+  <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1"
     class="px-4 py-2 text-sm rounded border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50">
     Prev
   </button>
 
-  <span class="px-4 py-2 text-sm text-gray-700">Page {{ currentPage }} of {{ totalPages }}</span>
+  <!-- Numbered Page Buttons -->
+  <button *ngFor="let page of pageNumbers" (click)="goToPage(page)" [class.bg-blue-100]="page === currentPage"
+    [class.font-bold]="page === currentPage"
+    class="px-3 py-2 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
+    [attr.aria-current]="page === currentPage ? 'page' : null">
+    {{ page }}
+  </button>
 
-  <button
-    (click)="goToPage(currentPage + 1)"
-    [disabled]="currentPage === totalPages"
+  <!-- Next Button -->
+  <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages"
     class="px-4 py-2 text-sm rounded border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-50">
     Next
   </button>
 </div>
-

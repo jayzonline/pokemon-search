@@ -5,18 +5,18 @@
 
   <div class="flex items-center space-x-4">
     <ng-container *ngFor="let item of visibleItems">
-      <a (click)="navigateTo(item)" class="nav-link" [ngClass]="{ 'active-link': isActive(item) }">
-        {{ item }}
-      </a>
-    </ng-container>
+  <a (click)="navigateTo(item)" class="nav-link" [ngClass]="{ 'active-link': isActive(item) }">
+    {{ item.label }}
+  </a>
+</ng-container>
     <select #dropdown *ngIf="overflowItems.length" [value]="getActiveItem(overflowItems) || ''"
       class="text-sm text-gray-700 border rounded px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
       (change)="selectLink($event)">
       <option disabled [selected]="!getActiveItem(overflowItems)">
         More...
       </option>
-      <option *ngFor="let item of overflowItems" [value]="item" [selected]="isActive(item)">
-        {{ item }}
+      <option *ngFor="let item of overflowItems" [value]="item.label" [selected]="isActive(item)">
+        {{ item.label }}
       </option>
     </select>
   </div>
