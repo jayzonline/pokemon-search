@@ -41,7 +41,7 @@ export class SearchComponent implements OnInit {
         }),
         switchMap(query => {
           const trimmedQuery = query?.trim().toLowerCase() ?? '';
-          if (trimmedQuery.length < 2) {
+          if (trimmedQuery.length < 1) {
             this.isLoading = false;
             return of([]);
           }

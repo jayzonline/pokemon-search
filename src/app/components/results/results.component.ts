@@ -19,7 +19,6 @@ export class ResultsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private pokemonService: PokemonService
   ) { }
 
