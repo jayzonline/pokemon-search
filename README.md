@@ -1,5 +1,5 @@
 # PokemonSearch
-
+A simple Angular application to explore Pokémon data using the PokeAPI.
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.16.
 
 ## Development server
